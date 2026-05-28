@@ -1,0 +1,20 @@
+[project]
+name = "voice-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiortc>=1.14.0",
+    "deepeval>=4.0.3",
+    "fastapi[standard]>=0.136.1",
+    "groq>=1.2.0",
+    "pinecone>=9.0.1",
+    "pinecone-plugin-assistant>=3.0.3",
+    "pinecone-plugin-interface>=0.0.7",
+    "pipecat-ai-small-webrtc-prebuilt>=2.5.0",
+    "pipecat-ai-whisker>=1.0.0",
+    "pipecat-ai[cartesia,daily,deepgram,openai,silero,webrtc]>=1.2.1",
+    "pypdf>=6.12.1",
+    "python-dotenv>=1.2.2",
+]
