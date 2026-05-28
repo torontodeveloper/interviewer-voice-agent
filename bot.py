@@ -41,6 +41,8 @@ from rag_processor import RAGDataBase
 load_dotenv()
 
 rag_db = RAGDataBase()
+if not rag_db.is_ingested("interviewer"):
+    rag_db.upsert(file="ManulifeJD.pdf")
 
 
 class RAGProcessor(FrameProcessor):
@@ -112,11 +114,6 @@ prompt = """You are Angelina, a senior technical interviewer conducting a mock i
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
-    global rag_db
-    if rag_db is None:
-        rag_db = RAGDataBase()
-        if not rag_db.is_ingested("interviewer"):
-            rag_db.upsert(file="ManulifeJD.pdf")
     jd_context = await rag_db.search_query(
         "Senior GenAI Engineer LLM RAG Azure requirements"
     )
