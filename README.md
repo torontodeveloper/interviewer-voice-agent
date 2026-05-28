@@ -1,4 +1,4 @@
-# AI Interview Coach — Voice Agent
+# AI Interview Coach for both behaviourial and Tehcnical — Voice Agent
 
 A real-time AI interviewer that conducts mock technical interviews over phone, powered by a RAG pipeline built on the job description. Call in, get interviewed by Angelina.
 
