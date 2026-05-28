@@ -1,5 +1,7 @@
+import asyncio
 import logging
 import os
+import threading
 
 from dotenv import load_dotenv
 from pipecat.audio.vad.silero import SileroVADAnalyzer
@@ -40,9 +42,19 @@ from rag_processor import RAGDataBase
 
 load_dotenv()
 
-rag_db = RAGDataBase()
-if not rag_db.is_ingested("interviewer"):
-    rag_db.upsert(file="ManulifeJD.pdf")
+rag_db = None
+
+
+def _init_rag():
+    global rag_db
+    db = RAGDataBase()
+    if not db.is_ingested("interviewer"):
+        db.upsert(file="ManulifeJD.pdf")
+    rag_db = db
+    logging.info("RAG initialized")
+
+
+threading.Thread(target=_init_rag, daemon=True).start()
 
 
 class RAGProcessor(FrameProcessor):
@@ -113,6 +125,9 @@ prompt = """You are Angelina, a senior technical interviewer conducting a mock i
 
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
+
+    while rag_db is None:
+        await asyncio.sleep(0.5)
 
     jd_context = await rag_db.search_query(
         "Senior GenAI Engineer LLM RAG Azure requirements"
