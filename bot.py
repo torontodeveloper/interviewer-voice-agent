@@ -47,11 +47,15 @@ rag_db = None
 
 def _init_rag():
     global rag_db
-    db = RAGDataBase()
-    if not db.is_ingested("interviewer"):
-        db.upsert(file="ManulifeJD.pdf")
-    rag_db = db
-    logging.info("RAG initialized")
+    try:
+        db = RAGDataBase()
+        if not db.is_ingested("interviewer"):
+            db.upsert(file="ManulifeJD.pdf")
+        rag_db = db
+        logging.info("RAG initialized")
+    except Exception as e:
+        logging.error(f"RAG init failed: {e}")
+        rag_db = None
 
 
 threading.Thread(target=_init_rag, daemon=True).start()
@@ -126,14 +130,20 @@ prompt = """You are Angelina, a senior technical interviewer conducting a mock i
 
 async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
-    while rag_db is None:
+    for _ in range(60):  # wait up to 30s
+        if rag_db is not None:
+            break
         await asyncio.sleep(0.5)
+    else:
+        logging.warning("RAG not ready, proceeding without JD context")
 
-    jd_context = await rag_db.search_query(
-        "Senior GenAI Engineer LLM RAG Azure requirements"
-    )
+    jd_context = ""
+    if rag_db is not None:
+        jd_context = await rag_db.search_query(
+            "Senior GenAI Engineer LLM RAG Azure requirements"
+        )
 
-    prompt_with_context = prompt + f"\n\nJob Description context:\n{jd_context}"
+    prompt_with_context = prompt + (f"\n\nJob Description context:\n{jd_context}" if jd_context else "")
     # Create AI Services
     stt = DeepgramSTTService(api_key=os.getenv("DEEPGRAM_API_KEY"))
     tts = CartesiaTTSService(

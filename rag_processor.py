@@ -6,8 +6,6 @@ import nltk
 from nltk.tokenize import sent_tokenize
 from pypdf import PdfReader
 
-nltk.download("punkt", quiet=True)
-
 load_dotenv()
 
 
@@ -58,6 +56,8 @@ class RAGDataBase:
         return namespace in (stats.namespaces or {})
 
     def upsert(self, file):
+        nltk.download("punkt", quiet=True)
+        nltk.download("punkt_tab", quiet=True)
         reader = PdfReader(file)
         text = "".join([page.extract_text() for page in reader.pages])
         chunks = self.chunk_with_nltk(text)
